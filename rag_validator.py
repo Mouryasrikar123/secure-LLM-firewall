@@ -2,9 +2,7 @@
 import os
 import re
 import json
-import pytesseract
 
-pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 from groq import Groq
 from firewall import layer1_keyword_check, layer2_pattern_check
 from ai_moderation import layer3_ai_moderation
@@ -70,37 +68,24 @@ def extract_text_from_file(file_storage) -> dict:
             return {"success": False, "text": "", "method": "pdf", "error": str(e)}
 
     elif filename.endswith((".jpg", ".jpeg", ".png")):
-        try:
-            import io, base64
-            b64  = base64.b64encode(file_bytes).decode()
-            mime = "image/jpeg" if filename.endswith((".jpg", ".jpeg")) else "image/png"
-            try:
-                from PIL import Image
-                import pytesseract
-                img  = Image.open(io.BytesIO(file_bytes))
-                text = pytesseract.image_to_string(img)
-                if text.strip():
-                    return {"success": True, "text": text.strip(), "method": "tesseract", "error": ""}
-            except ImportError:
-                pass
-            if client:
-                try:
-                    resp = client.chat.completions.create(
-                        model="meta-llama/llama-4-scout-17b-16e-instruct",
-                        messages=[{"role": "user", "content": [
-                            {"type": "text", "text": "Extract all text from this image. Return only the extracted text."},
-                            {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{b64}"}}
-                        ]}],
-                        max_tokens=1000,
-                    )
-                    text = resp.choices[0].message.content.strip()
-                    return {"success": True, "text": text, "method": "groq_vision", "error": ""}
-                except Exception as ve:
-                    return {"success": False, "text": "", "method": "groq_vision", "error": str(ve)}
-            return {"success": False, "text": "", "method": "image",
-                    "error": "Run: pip install pytesseract pillow"}
-        except Exception as e:
-            return {"success": False, "text": "", "method": "image", "error": str(e)}
+       
+           
+     try:
+        # Image OCR disabled in deployment (Render doesn't support Tesseract)
+        return {
+            "success": False,
+            "text": "",
+            "method": "image",
+            "error": "Image processing not supported in deployment"
+        }
+
+     except Exception as e:
+        return {
+            "success": False,
+            "text": "",
+            "method": "image",
+            "error": str(e)
+        }
 
     return {"success": False, "text": "", "method": "unknown",
             "error": f"Unsupported file type. Supported: .txt, .pdf, .jpg, .png"}
