@@ -4,190 +4,419 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Cybersecurity Gateway</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
 
-  <div class="app-layout">
+<div class="app">
 
-    <!-- ══ SIDEBAR ══════════════════════════════════════════ -->
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-header">
-        <div class="sidebar-logo">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
-            <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-        <span class="sidebar-title">Gateway</span>
-        <button class="icon-btn" onclick="toggleSidebar()" title="Close">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-          </svg>
-        </button>
-      </div>
+  <!-- ═══════════════════════════════════════
+       SIDEBAR
+  ═══════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar">
 
-      <button class="new-chat-btn" onclick="startNewChat()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+    <!-- Logo -->
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
+          <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        New Chat
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">CyberGate</span>
+        <span class="brand-sub">AI Firewall v2</span>
+      </div>
+      <button class="sidebar-close" onclick="toggleSidebar()" id="sidebarCloseBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
       </button>
+    </div>
 
-      <div class="sidebar-label">Chat History</div>
-      <div class="chat-list" id="chatList">
-        <div class="chat-list-empty">Loading…</div>
-      </div>
+    <!-- New Chat -->
+    <button class="new-chat-btn" onclick="startNewChat()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      New Chat
+    </button>
 
-      <div class="sidebar-footer" id="sidebarStats">0 requests</div>
-    </aside>
-
-    <!-- ══ MAIN ═════════════════════════════════════════════ -->
-    <main class="main-area" id="mainArea">
-
-      <!-- Topbar -->
-      <div class="topbar">
-        <button class="icon-btn topbar-menu" onclick="toggleSidebar()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    <!-- Nav -->
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Filters</div>
+      <a class="nav-item active" id="nav-all" onclick="filterMessages('all')">
+        <span class="nav-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
           </svg>
+        </span>
+        All Prompts
+        <span class="nav-badge" id="badge-all">0</span>
+      </a>
+      <a class="nav-item" id="nav-safe" onclick="filterMessages('safe')">
+        <span class="nav-icon nav-icon-safe">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </span>
+        Safe Prompts
+        <span class="nav-badge nav-badge-safe" id="badge-safe">0</span>
+      </a>
+      <a class="nav-item" id="nav-suspicious" onclick="filterMessages('suspicious')">
+        <span class="nav-icon nav-icon-suspicious">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </span>
+        Suspicious
+        <span class="nav-badge nav-badge-suspicious" id="badge-suspicious">0</span>
+      </a>
+      <a class="nav-item" id="nav-blocked" onclick="filterMessages('blocked')">
+        <span class="nav-icon nav-icon-blocked">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+          </svg>
+        </span>
+        Blocked
+        <span class="nav-badge nav-badge-blocked" id="badge-blocked">0</span>
+      </a>
+      <a class="nav-item" id="nav-llm" onclick="filterMessages('llm')">
+        <span class="nav-icon nav-icon-llm">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+        </span>
+        LLM Queries
+        <span class="nav-badge nav-badge-llm" id="badge-llm">0</span>
+      </a>
+
+      <div class="nav-section-label" style="margin-top:16px;">History</div>
+      <div class="chat-history-list" id="chatList">
+        <div class="history-empty">No chats yet</div>
+      </div>
+    </nav>
+
+    <!-- Settings -->
+    <div class="sidebar-bottom">
+      <a class="nav-item" onclick="toggleSettings()">
+        <span class="nav-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
+          </svg>
+        </span>
+        Settings
+      </a>
+      <div class="sidebar-status">
+        <div class="status-dot-wrap">
+          <span class="status-dot-live"></span>
+          <span>System Online</span>
+        </div>
+        <span class="sidebar-version">v2.0</span>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════
+       MAIN AREA
+  ═══════════════════════════════════════ -->
+  <main class="main" id="mainArea">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <button class="topbar-menu" onclick="toggleSidebar()" id="menuBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <div class="topbar-title">
+        <h1>AI Cybersecurity Gateway</h1>
+        <span>Multi-layer LLM Firewall · RAG Validator · Output Guard · Attack Detector</span>
+      </div>
+      <div class="topbar-controls">
+        <!-- Compare Mode Toggle -->
+        <div class="compare-toggle-card">
+          <span class="compare-toggle-label">Compare Mode</span>
+          <label class="toggle">
+            <input type="checkbox" id="compareToggle" onchange="toggleCompareMode()"/>
+            <span class="toggle-track">
+              <span class="toggle-thumb"></span>
+            </span>
+          </label>
+        </div>
+        <!-- Live indicator -->
+        <div class="live-badge">
+          <span class="live-dot"></span>
+          LIVE
+        </div>
+      </div>
+    </header>
+
+    <!-- STATS CARDS -->
+    <div class="stats-row">
+      <div class="stat-card stat-card-safe">
+        <div class="stat-card-left">
+          <div class="stat-icon stat-icon-safe">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+              <polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card-right">
+          <div class="stat-value" id="val-safe">0</div>
+          <div class="stat-label">Safe</div>
+        </div>
+        <div class="stat-bar-bg"><div class="stat-bar stat-bar-safe" id="bar-safe"></div></div>
+      </div>
+      <div class="stat-card stat-card-suspicious">
+        <div class="stat-card-left">
+          <div class="stat-icon stat-icon-suspicious">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card-right">
+          <div class="stat-value" id="val-suspicious">0</div>
+          <div class="stat-label">Suspicious</div>
+        </div>
+        <div class="stat-bar-bg"><div class="stat-bar stat-bar-suspicious" id="bar-suspicious"></div></div>
+      </div>
+      <div class="stat-card stat-card-blocked">
+        <div class="stat-card-left">
+          <div class="stat-icon stat-icon-blocked">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card-right">
+          <div class="stat-value" id="val-blocked">0</div>
+          <div class="stat-label">Blocked</div>
+        </div>
+        <div class="stat-bar-bg"><div class="stat-bar stat-bar-blocked" id="bar-blocked"></div></div>
+      </div>
+      <div class="stat-card stat-card-total">
+        <div class="stat-card-left">
+          <div class="stat-icon stat-icon-total">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-card-right">
+          <div class="stat-value" id="val-total">0</div>
+          <div class="stat-label">Total Requests</div>
+        </div>
+        <div class="stat-bar-bg"><div class="stat-bar stat-bar-total" id="bar-total"></div></div>
+      </div>
+    </div>
+
+    <!-- COMPARE BANNER -->
+    <div class="compare-banner" id="compareBanner" style="display:none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="18" rx="1"/><rect x="14" y="3" width="7" height="18" rx="1"/>
+      </svg>
+      Compare Mode Active — <strong>Left:</strong> Raw LLM (No Firewall) &nbsp;|&nbsp; <strong>Right:</strong> Protected by Firewall
+    </div>
+
+    <!-- CHAT WINDOW -->
+    <div class="chat-window" id="chatWindow">
+
+      <!-- Welcome screen -->
+      <div class="welcome" id="welcomeScreen">
+        <div class="welcome-shield">
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
+            <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/>
+          </svg>
+        </div>
+        <h2 class="welcome-title">AI Cybersecurity Gateway</h2>
+        <p class="welcome-desc">Your prompts are analyzed through 3 security layers before reaching the LLM. Input is scanned, output is validated, attacks are detected.</p>
+        <div class="welcome-features">
+          <div class="welcome-feature">
+            <span class="wf-icon wf-green">🔍</span>
+            <span>3-Layer Input Firewall</span>
+          </div>
+          <div class="welcome-feature">
+            <span class="wf-icon wf-blue">🛡</span>
+            <span>RAG Context Validator</span>
+          </div>
+          <div class="welcome-feature">
+            <span class="wf-icon wf-purple">⚡</span>
+            <span>Output Firewall</span>
+          </div>
+          <div class="welcome-feature">
+            <span class="wf-icon wf-orange">🎯</span>
+            <span>Attack Type Detector</span>
+          </div>
+        </div>
+        <div class="welcome-quick">
+          <p>Try a quick test:</p>
+          <div class="welcome-pills">
+            <button onclick="fillPrompt('safe')" class="wp-safe">✓ Safe Prompt</button>
+            <button onclick="fillPrompt('suspicious')" class="wp-sus">⚠ Suspicious</button>
+            <button onclick="fillPrompt('malicious')" class="wp-bad">✕ Malicious</button>
+            <button onclick="fillPrompt('rag_inject')" class="wp-rag">⚡ RAG Inject</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <div class="messages" id="messagesContainer"></div>
+
+      <!-- Loading indicator -->
+      <div class="loading-msg" id="loadingMsg" style="display:none;">
+        <div class="loading-avatar">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
+          </svg>
+        </div>
+        <div class="loading-bubble">
+          <div class="loading-steps" id="loadingSteps">
+            <span class="loading-step active" id="ls1">🤖 Analyzing prompt with firewall…</span>
+            <span class="loading-step" id="ls2">🔍 Checking for threats…</span>
+            <span class="loading-step" id="ls3">⚡ Running AI semantic analysis…</span>
+            <span class="loading-step" id="ls4">🛡 Validating output safety…</span>
+          </div>
+          <div class="loading-dots">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- INPUT AREA -->
+    <div class="input-area">
+
+      <!-- RAG Section -->
+      <div class="rag-section">
+        <button class="rag-toggle-btn" id="ragToggleBtn" onclick="toggleRag()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+          </svg>
+          External Context (RAG)
         </button>
-        <div class="topbar-info">
-          <span class="topbar-title">AI Cybersecurity Gateway</span>
-          <span class="topbar-sub">Input Firewall · RAG Validator · Output Firewall · Attack Detector</span>
-        </div>
-        <div class="topbar-right">
-          <div class="compare-wrap">
-            <span class="compare-label">Compare</span>
-            <label class="toggle-switch">
-              <input type="checkbox" id="compareToggle" onchange="toggleCompareMode()" />
-              <span class="toggle-slider"></span>
-            </label>
+        <div id="ragContextWrap" style="display:none;">
+          <div class="rag-tabs">
+            <button class="rag-tab active" id="tabPaste" onclick="switchRagTab('paste')">📝 Paste Text</button>
+            <button class="rag-tab" id="tabFile" onclick="switchRagTab('file')">📎 Upload File</button>
           </div>
-          <div class="beacon">
-            <span class="beacon-dot"></span>
-            <span class="beacon-label">Online</span>
+          <div id="ragPastePanel">
+            <textarea id="ragContext" placeholder="Paste external document or context here. The firewall will scan it for injection attacks before sending to the LLM." maxlength="4000"></textarea>
           </div>
-        </div>
-      </div>
-
-      <!-- Stats bar -->
-      <div class="stats-bar">
-        <div class="stat-chip"><span id="val-total">0</span><span>Total</span></div>
-        <div class="stat-chip safe"><span id="val-safe">0</span><span>Safe</span></div>
-        <div class="stat-chip suspicious"><span id="val-suspicious">0</span><span>Suspicious</span></div>
-        <div class="stat-chip blocked"><span id="val-blocked">0</span><span>Blocked</span></div>
-      </div>
-
-      <!-- Chat window -->
-      <div class="chat-window" id="chatWindow">
-
-        <!-- Welcome (shown when no messages) -->
-        <div class="welcome" id="welcomeScreen">
-          <div class="welcome-icon">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-              <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
-              <path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
-            </svg>
-          </div>
-          <h2>AI Cybersecurity Gateway</h2>
-          <p>Every prompt is analyzed through 3 security layers before reaching the LLM.</p>
-          <div class="welcome-btns">
-            <button onclick="fillPrompt('safe')">✓ Safe example</button>
-            <button onclick="fillPrompt('suspicious')">⚠ Suspicious example</button>
-            <button onclick="fillPrompt('malicious')">✕ Malicious example</button>
-            <button onclick="fillPrompt('rag_inject')">⚡ RAG inject test</button>
-          </div>
-        </div>
-
-        <!-- Messages injected here -->
-        <div class="messages" id="messagesContainer"></div>
-
-        <!-- Typing indicator -->
-        <div class="typing" id="typingIndicator" style="display:none;">
-          <div class="typing-avatar">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
-            </svg>
-          </div>
-          <div class="typing-dots"><span></span><span></span><span></span></div>
-        </div>
-
-      </div>
-
-      <!-- Input area -->
-      <div class="input-area">
-
-        <div class="compare-banner" id="compareBanner" style="display:none;">
-          Compare Mode — Left: No Firewall &nbsp;|&nbsp; Right: Protected by Firewall
-        </div>
-
-        <!-- RAG -->
-        <div class="rag-wrap">
-          <button class="rag-btn" id="ragToggleBtn" onclick="toggleRag()">+ External Context (RAG)</button>
-          <div id="ragContextWrap" style="display:none; margin-top:8px;">
-            <div class="rag-tabs">
-              <button class="rag-tab active" id="tabPaste" onclick="switchRagTab('paste')">Paste Text</button>
-              <button class="rag-tab" id="tabFile" onclick="switchRagTab('file')">Upload File</button>
-            </div>
-            <div id="ragPastePanel">
-              <textarea id="ragContext" placeholder="Paste external document or context. The firewall will scan it before sending to LLM." rows="3" maxlength="4000"></textarea>
-            </div>
-            <div id="ragFilePanel" style="display:none;">
-              <div class="file-drop" id="fileDropZone" onclick="document.getElementById('fileInput').click()"
-                   ondragover="handleDragOver(event)" ondrop="handleFileDrop(event)">
-                <div class="file-drop-icon">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-                    <polyline points="17 8 12 3 7 8"/>
-                    <line x1="12" y1="3" x2="12" y2="15"/>
-                  </svg>
-                </div>
-                <div>Click or drag & drop</div>
-                <div class="file-drop-hint">.txt · .pdf · .jpg · .png (max 10MB)</div>
-                <input type="file" id="fileInput" accept=".txt,.pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleFileSelect(event)" />
+          <div id="ragFilePanel" style="display:none;">
+            <div class="file-drop" id="fileDropZone"
+                 onclick="document.getElementById('fileInput').click()"
+                 ondragover="handleDragOver(event)"
+                 ondrop="handleFileDrop(event)">
+              <div class="file-drop-inner">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <span>Drop file here or click to browse</span>
+                <span class="file-drop-hint">.txt · .pdf · .jpg · .png (max 10MB)</span>
               </div>
-              <div class="file-chosen" id="fileSelected" style="display:none;">
-                <span>📄</span>
-                <span id="fileName"></span>
-                <span id="fileSize" style="color:var(--text-dim);font-size:11px;"></span>
-                <button onclick="removeFile()">✕</button>
-              </div>
+              <input type="file" id="fileInput" accept=".txt,.pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleFileSelect(event)" />
+            </div>
+            <div class="file-chosen" id="fileSelected" style="display:none;">
+              <span class="file-chosen-icon">📄</span>
+              <span class="file-chosen-name" id="fileName"></span>
+              <span class="file-chosen-size" id="fileSize"></span>
+              <button class="file-remove" onclick="removeFile()">✕</button>
             </div>
           </div>
         </div>
-
-        <!-- Prompt box -->
-        <div class="prompt-box" id="promptBox">
-          <textarea id="promptInput" placeholder="Ask anything… (Enter to send, Shift+Enter for newline)" rows="1" maxlength="2000"></textarea>
-          <div class="prompt-actions">
-            <span class="char-count" id="charCount">0/2000</span>
-            <button class="send-btn" id="sendBtn" onclick="analyzePrompt()">
-              <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Footer pills -->
-        <div class="input-footer">
-          <div class="pills">
-            <button class="pill safe-pill"   onclick="fillPrompt('safe')">✓ Safe</button>
-            <button class="pill sus-pill"    onclick="fillPrompt('suspicious')">⚠ Sus</button>
-            <button class="pill bad-pill"    onclick="fillPrompt('malicious')">✕ Malicious</button>
-            <button class="pill inject-pill" onclick="fillPrompt('rag_inject')">⚡ RAG</button>
-          </div>
-          <span class="footer-note">Protected by 3-layer AI firewall</span>
-        </div>
-
       </div>
 
-    </main>
+      <!-- Prompt Input -->
+      <div class="prompt-wrap" id="promptWrap">
+        <div class="prompt-inner">
+          <textarea
+            id="promptInput"
+            placeholder="Ask anything... the firewall will protect you (Enter to send · Shift+Enter for newline)"
+            maxlength="2000"
+          ></textarea>
+          <div class="prompt-footer">
+            <div class="prompt-pills">
+              <button class="ppill ppill-safe"    onclick="fillPrompt('safe')">✓ Safe</button>
+              <button class="ppill ppill-sus"     onclick="fillPrompt('suspicious')">⚠ Sus</button>
+              <button class="ppill ppill-bad"     onclick="fillPrompt('malicious')">✕ Malicious</button>
+              <button class="ppill ppill-rag"     onclick="fillPrompt('rag_inject')">⚡ RAG</button>
+            </div>
+            <div class="prompt-right">
+              <span class="char-cnt" id="charCount">0 / 2000</span>
+              <button class="send-btn" id="sendBtn" onclick="analyzePrompt()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <line x1="22" y1="2" x2="11" y2="13"/>
+                  <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
+    </div><!-- /input-area -->
+
+  </main>
+
+</div><!-- /app -->
+
+<!-- Settings Panel (overlay) -->
+<div class="settings-overlay" id="settingsOverlay" style="display:none;" onclick="toggleSettings()">
+  <div class="settings-panel" onclick="event.stopPropagation()">
+    <div class="settings-header">
+      <h3>Settings</h3>
+      <button onclick="toggleSettings()">✕</button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-row">
+        <span>Compare Mode</span>
+        <label class="toggle">
+          <input type="checkbox" id="settingsCompare" onchange="syncCompare()"/>
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <span>Auto-scroll to bottom</span>
+        <label class="toggle">
+          <input type="checkbox" id="autoScroll" checked/>
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+      <div class="settings-row">
+        <span>Show firewall breakdown</span>
+        <label class="toggle">
+          <input type="checkbox" id="showBreakdown" checked/>
+          <span class="toggle-track"><span class="toggle-thumb"></span></span>
+        </label>
+      </div>
+      <div class="settings-info">
+        <div class="si-row"><span>Model</span><span>LLaMA 3.3 70B (Groq)</span></div>
+        <div class="si-row"><span>Firewall Layers</span><span>3 (KW + Pattern + AI)</span></div>
+        <div class="si-row"><span>Output Guard</span><span>Active</span></div>
+        <div class="si-row"><span>Attack Detector</span><span>Active</span></div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <script>window.INITIAL_SESSION_ID = "{{ session_id }}";</script>
-  <script src="{{ url_for('static', filename='main.js') }}"></script>
+<script>window.INITIAL_SESSION_ID = "{{ session_id }}";</script>
+<script src="{{ url_for('static', filename='main.js') }}"></script>
 </body>
 </html>
